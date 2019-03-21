@@ -1,0 +1,11 @@
+int16 arm_select
+int16 mode_select
+int32 num_waypoint
+float64[] init_theta
+float64[] waypointPos
+---
+float64[] jointAngles
+float64[] failNum
+float64 error
+float64 success
+

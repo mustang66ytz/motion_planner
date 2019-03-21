@@ -1,0 +1,4 @@
+<launch> 
+    <node name="ginger_fixed_tf_publisher" pkg="dmp_vfc" type="ginger_fix_publisher.py" respawn="true" output="screen"/>
+    <!-- <node name="vision_tf_publisher" pkg="dmp_vfc" type="vision_publisher.py" respawn="true" output="screen"/> -->
+</launch>

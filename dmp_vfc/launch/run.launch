@@ -1,0 +1,5 @@
+<launch> 
+    <node pkg="xr1controllerol" type="xr1controllerIK_simulator"    name="xr1controllerIK_simulator"    output="screen"/>
+    <node name="dmp" pkg="dmp" type="dmp_server" output="screen"/>
+    <node name="newik" pkg="newik" type="trajectory_ik_server" respawn="false" output="screen"/>
+</launch>

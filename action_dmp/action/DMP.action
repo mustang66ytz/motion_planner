@@ -1,0 +1,11 @@
+#goal definition, the target pose, 1 by 7: quaternion + translation
+#goal definition, the learning primitive, which is a sequence of 1 by 7 points
+float64[] initial_pose
+float64[] target_pose
+string mp_file
+---
+#result definition, a sequence of 1 by 7 points
+std_msgs/Float64MultiArray traj_dmp
+---
+#feedback
+std_msgs/Float64MultiArray traj_dmp

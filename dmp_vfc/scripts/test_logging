@@ -1,0 +1,51 @@
+#!/usr/bin/env python
+import logging
+import rospy
+import argparse
+import sys
+import os
+
+from utils import config
+from utils.utils import mkdir_p, check_arg_name
+from utils.helper import set_config_inst, setup_logging
+
+
+def handle_arguments(cl_arguments):
+  parser = argparse.ArgumentParser(description='')
+  # Configuration files
+  parser.add_argument('--config_file', '-c', type=str, nargs="+",
+                      help="Config file(s) (.conf) for model parameters.")
+  parser.add_argument('--overrides', '-o', type=str, default=None,
+                      help="Parameter overrides, as valid HOCON string.")
+
+  return parser.parse_args(cl_arguments)
+
+if __name__ == '__main__':
+    cl_args = handle_arguments(sys.argv[1:])
+    if cl_args.config_file is None:
+        config_file_key = "APP_CONFIG_FILE"
+        if config_file_key in os.environ:
+            config_file = os.environ[config_file_key]
+        else:
+            logging.error("config file is not specified")
+            sys.exit(-1)
+    else:
+        config_file = cl_args.config_file
+    args = config.params_from_file(config_file, cl_args.overrides)
+
+    # Raise error if obsolete arg names are present
+    check_arg_name(args)
+
+    mkdir_p(args.log_dir)
+
+    set_config_inst(args)
+    setup_logging()
+
+    logging.info("before init_node")
+    root_logger = logging.getLogger()
+    rospy.init_node('test_logging')
+    if logging.getLogger('rospy').getEffectiveLevel() > logging.INFO:
+        logging.getLogger('rospy').setLevel(logging.INFO)
+    logging.info("after init_node 111")
+    rospy.loginfo("after init_node 222")
+    rospy.spin()

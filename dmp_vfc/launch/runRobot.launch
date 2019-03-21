@@ -1,0 +1,5 @@
+<launch> 
+    <node pkg="xr1controllerol" type="actuator_bridge"    name="actuator_bridge"    output="screen"/>
+    <node name="dmp" pkg="dmp" type="dmp_server" output="screen"/>
+    <node name="newik" pkg="newik" type="trajectory_ik_server" respawn="false" output="screen"/>
+</launch>
