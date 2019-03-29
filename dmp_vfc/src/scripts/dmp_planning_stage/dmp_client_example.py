@@ -115,7 +115,9 @@ if __name__ == "__main__":
                         0.09]
         target_pose = [-0.5571638192069343, 0.575242166261965, -0.21679645766259464, 0.5582689768911218,
                        0.22445238346047316, -0.20288282629715598, 0.3291512751673038]
-        mp_file = "./src/action_dmp/src/dmp_learning_primitives/mp1/R_0"
+
+        folder = raw_input("Enter the name of demo data folder")
+        mp_file = "./src/action_dmp/src/dmp_learning_primitives/"+folder+"/R_0"
 
         # uncomment the following to use rocky's IK
         # Rocky's IK starts here
@@ -141,7 +143,7 @@ if __name__ == "__main__":
         elif "right" == arm:
             arm_select = 1
         ginger.set_left_arm_mode(1)
-        ginger.set_left_arm_joint([0, 0.2, 0.3, -0.78, 0, 0, 0], interpolation=1)
+        ginger.set_left_arm_joint([0, 0.2, 0.3, -0.78, 0, 0, 0], interpolation = None, send_times=5)
         rospy.sleep(0.5)
         init_joint_angles = ginger.get_left_arm_joint()
         ginger.set_left_arm_mode(4)
@@ -172,7 +174,7 @@ if __name__ == "__main__":
         except rospy.ServiceException, e:
             print ("Servie call failed: %s" % e)
         # Derek's IK ends here
-        
+
     except:
         print("program interrupted before completion")
 

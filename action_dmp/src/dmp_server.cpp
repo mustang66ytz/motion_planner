@@ -17,6 +17,10 @@
 #include <sstream>
 #include <unistd.h>
 #include <std_msgs/Float64MultiArray.h>
+// for rviz visualization
+#include <tf2_ros/static_transform_broadcaster.h>
+#include <geometry_msgs/TransformStamped.h>
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
 #define GetCurrentDir getcwd
 
@@ -93,6 +97,42 @@ dmp::GetDMPPlan::Response makePlanRequest(ros::NodeHandle &nh, std::vector<doubl
 
 }
 
+void visualizer(std::vector<double> &start, std::vector<double> &target){
+    // render the initial pose and the target pose in rviz
+    static tf2_ros::StaticTransformBroadcaster static_broadcaster_initial_pose;
+    static tf2_ros::StaticTransformBroadcaster static_broadcaster_target_pose;
+    
+    geometry_msgs::TransformStamped static_transform_initial_pose;
+    geometry_msgs::TransformStamped static_transform_target_pose;
+
+    static_transform_initial_pose.header.stamp = ros::Time::now();
+    static_transform_initial_pose.header.frame_id = "/Back_Y";
+    static_transform_initial_pose.child_frame_id = "DMP_initial";
+    static_transform_initial_pose.transform.translation.x = start[4];
+    static_transform_initial_pose.transform.translation.y = start[5];
+    static_transform_initial_pose.transform.translation.z = start[6];
+    static_transform_initial_pose.transform.rotation.x = start[0];
+    static_transform_initial_pose.transform.rotation.y = start[1];
+    static_transform_initial_pose.transform.rotation.z = start[2];
+    static_transform_initial_pose.transform.rotation.w = start[3];
+    static_broadcaster_initial_pose.sendTransform(static_transform_initial_pose);
+
+    std::cout<<"broadcasted the initial pose"<<std::endl;
+
+    static_transform_target_pose.header.stamp = ros::Time::now();
+    static_transform_target_pose.header.frame_id = "/Back_Y";
+    static_transform_target_pose.child_frame_id = "DMP_target";
+    static_transform_target_pose.transform.translation.x = target[4];
+    static_transform_target_pose.transform.translation.y = target[5];
+    static_transform_target_pose.transform.translation.z = target[6];
+    static_transform_target_pose.transform.rotation.x = target[0];
+    static_transform_target_pose.transform.rotation.y = target[1];
+    static_transform_target_pose.transform.rotation.z = target[2];
+    static_transform_target_pose.transform.rotation.w = target[3];
+    static_broadcaster_target_pose.sendTransform(static_transform_target_pose);
+
+}
+
 std::vector<dmp::DMPPoint> dmp_ee(ros::NodeHandle &nh, std::string &filename, std::vector<double> &start, std::vector<double> &target){
     int dims = 7;
     double dt = 1.0;
@@ -143,6 +183,9 @@ std::vector<dmp::DMPPoint> dmp_ee(ros::NodeHandle &nh, std::string &filename, st
     double tau = resp1.tau;
     dt = 1.0;
     int integrate_iter = 5;
+    // render the dmp start and goal poses
+    visualizer(start, target);
+
     dmp::GetDMPPlan::Response resp2 = makePlanRequest(nh, start, x_dot_0, t_0, target, goal_thresh, seg_length, tau, dt, integrate_iter);
     std::vector<dmp::DMPPoint> plan_generated = resp2.plan.points;
     return plan_generated;
@@ -155,7 +198,7 @@ protected:
     ros::NodeHandle nh;
     actionlib::SimpleActionServer<action_dmp::DMPAction> as; // NodeHandle instance must be created before this line. Otherwise strange error occurs.
     std::string action_name;
-    // create messages that are used to published feedback/result
+    // create messages that are used to publish feedback/result
     action_dmp::DMPFeedback feedback;
     action_dmp::DMPResult result;
 
@@ -179,13 +222,14 @@ public:
         std::vector<double> target = goal->target_pose;
         std::vector<dmp::DMPPoint> plan_generated = dmp_ee(nh, file_name, start, target);
         // print the generated trajectory:
+        /*
         for (int i=0; i<plan_generated.size(); i++){
             std::vector<double> curr_pt = plan_generated[i].positions;
             for (int j=0; j<curr_pt.size(); j++){
                 std::cout<<curr_pt[j]<<" ";
             }
             std::cout<<" "<<std::endl;
-        }
+        }*/
         // generate the action result
         std::vector<std::vector<double>> res;
         std::vector<double> res_1d;
